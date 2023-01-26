@@ -4,20 +4,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 
 public class MainWindow extends JFrame {
 
-    private Socket socket;
     private PrintStream output;
     private JTextField message;
     private JTextArea textArea;
     private JButton send;
     private JPanel panel;
     private Input input;
+    private JList<String> userList;
 
     public MainWindow(Socket socket) {
         setSize(400, 600);
@@ -37,7 +36,9 @@ public class MainWindow extends JFrame {
         message = new JTextField(30);
         send = new JButton("Wyślij");
         panel = new JPanel();
+        userList = new JList<>();
 
+        add(userList, BorderLayout.LINE_END);
         add(new JScrollPane(textArea), BorderLayout.CENTER);
         panel.add(message);
         panel.add(send);
@@ -47,7 +48,7 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textArea.append("[JA] " + message.getText() + "\n");
-                output.println(message.getText());
+                output.println("[" + userList.getSelectedValue().length() + "] " + "[" + userList.getSelectedValue() + "] " + message.getText());
                 output.flush();
                 message.setText("");
             }
@@ -57,7 +58,7 @@ public class MainWindow extends JFrame {
         setVisible(true);
 
         try {
-            input = new Input(socket, textArea);
+            input = new Input(socket, textArea, userList);
             input.start();
             output = new PrintStream(socket.getOutputStream());
         } catch (IOException e) {
